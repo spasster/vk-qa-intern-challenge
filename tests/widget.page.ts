@@ -5,7 +5,8 @@ enum WidgetPageSelectors {
     WIDGET_BODY = '[class^=widgetWrapper] > [class^=widget__]',
     HEADER_TEXT = 'header h5',
     BUTTON_OPEN = '[data-test=openWidget]',
-    BUTTON_WRITE_TO_US = '[class^=btn]',
+    BUTTON_WRITE_TO_US = '[class^=btn__]',
+    BUTTON_CLOSE = 'button[class^=closeBtn]',
     ARTICLE_POPULAR_TITLE = '[class^=popularTitle__]',
     ARTICLE_POPULAR_LIST = `${ARTICLE_POPULAR_TITLE} + ul[class^=articles__]`,
     ARTICLE_POPULAR_LIST_ITEM = `${ARTICLE_POPULAR_LIST} > li`,
@@ -21,19 +22,28 @@ export class WidgetPage {
     }
 
     async openWidget() {
+        // Кнопка появляется раньше, чем window.supportWidget. Ранний клик открывает оболочку без статей.
+        await this.page.waitForFunction('() => !!(window.supportWidget && window.supportWidget.open)');
         return this.wrapper().locator(WidgetPage.selector.BUTTON_OPEN).click();
     }
 
-    async getPopularArticles() {
-        return this.wrapper().locator(WidgetPage.selector.ARTICLE_POPULAR_LIST_ITEM).all()
+    popularArticles() {
+        return this.wrapper().locator(WidgetPage.selector.ARTICLE_POPULAR_LIST_ITEM)
     }
 
     async clickWriteToUs() {
-        return this.wrapper().locator(WidgetPage.selector.BUTTON_WRITE_TO_US).click();
+        return this.wrapper()
+            .locator(WidgetPage.selector.BUTTON_WRITE_TO_US)
+            .filter({ hasText: /написать нам/i })
+            .click();
     }
 
-    async getTitle() {
-        return this.wrapper().locator(WidgetPage.selector.HEADER_TEXT).textContent();
+    async closeWidget() {
+        return this.wrapper().locator(WidgetPage.selector.BUTTON_CLOSE).click();
+    }
+
+    getTitle() {
+        return this.wrapper().locator(WidgetPage.selector.HEADER_TEXT);
     }
 
     getWidgetBody() {

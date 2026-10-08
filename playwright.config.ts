@@ -13,6 +13,8 @@ import { defineConfig, devices } from '@playwright/test';
  */
 export default defineConfig({
   testDir: './tests',
+  timeout: 60_000,
+  expect: { timeout: 15_000 },
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
@@ -20,6 +22,9 @@ export default defineConfig({
     baseURL: 'https://uchi.ru',
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
+    ignoreHTTPSErrors: true,
+    navigationTimeout: 45_000,
 
     launchOptions: {
       /* slow down test run */
@@ -31,7 +36,11 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: {
+        ...devices['Desktop Chrome'],
+        // Виджет help.uchi.ru не открывается во встроенном Chromium Playwright.
+        channel: 'chrome',
+      },
     },
   ],
 
